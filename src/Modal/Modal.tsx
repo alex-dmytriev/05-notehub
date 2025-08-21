@@ -1,14 +1,16 @@
 import { createPortal } from "react-dom";
 import css from "./Modal.module.css";
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 
+//? Check this statement
 const modalRoot = document.getElementById("modalRoot") as HTMLElement;
 
 interface ModalProps {
+  children: ReactNode;
   onClose: () => void;
 }
 
-const Modal = ({ onClose }: ModalProps) => {
+const Modal = ({ children, onClose }: ModalProps) => {
   //TODO: logic here
 
   //* Esc closure
@@ -27,17 +29,11 @@ const Modal = ({ onClose }: ModalProps) => {
   }, [onClose]);
 
   //* Backdrop click closure
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.classList.contains(css.backdrop)) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, [onClose]);
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   //* Prevent scroll
   useEffect(() => {
@@ -45,11 +41,16 @@ const Modal = ({ onClose }: ModalProps) => {
     return () => {
       document.body.classList.remove(css.noScroll);
     };
-  });
+  }, []);
 
   return createPortal(
-    <div className={css.backdrop} role="dialog" aria-modal="true">
-      <div className={css.modal}>Form is under construction</div>
+    <div
+      onClick={handleBackdropClick}
+      className={css.backdrop}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className={css.modal}>{children}</div>
     </div>,
     modalRoot
   );

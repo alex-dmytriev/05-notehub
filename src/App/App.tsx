@@ -1,32 +1,33 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import NoteList from "../NoteList/NoteList";
 import css from "./App.module.css";
 import { fetchNotes } from "../services/noteService";
 import Pagination from "../Pagination/Pagination";
 import Modal from "../Modal/Modal";
+import NoteForm from "../NoteForm/NoteForm";
+import SearchBox from "../SearchBox/SearchBox";
+import { useDebouncedCallback } from "use-debounce";
 
 const App = () => {
   //* === States ===
   const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  //? Temp block
-  const perPage = 10; //TODO: receive this externally later
-  const searchTerm = ""; //TODO: receve this externally later
-
   //* === Hooks ===
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["notes", { page, perPage, searchTerm }],
-    queryFn: () => fetchNotes(page, perPage, searchTerm),
+  const { data, isSuccess } = useQuery({
+    queryKey: ["notes", query, page],
+    queryFn: () => fetchNotes(query, page),
     placeholderData: keepPreviousData,
   });
 
-  useEffect(() => {
-    console.log(isModalOpen); //Todo: any logic here?
-  }, [isModalOpen]);
-
   //* === Handlers ===
+  const handleSearch = useDebouncedCallback((value: string) => {
+    setQuery(value);
+    setPage(1);
+  }, 300);
+
   const handleCreateNote = () => {
     setIsModalOpen(true);
   };
@@ -34,22 +35,24 @@ const App = () => {
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        {/* Компонент SearchBox */} //TODO: Add SearchBox component here
-        {data && data?.totalPages > 0 && (
+        <SearchBox onChange={handleSearch} />
+        {isSuccess && data && data?.totalPages > 1 && (
           <Pagination
             totalPages={data.totalPages}
-            currentPage={page}
-            setCurrentPage={setPage}
+            page={page}
+            currentPage={setPage}
           />
         )}
         <button onClick={handleCreateNote} className={css.button}>
           Create note +
         </button>
       </header>
-      {isLoading && <p>Loading...</p>}
-      {isError && <p>An error occured: {error.message}</p>}
-      {data && data?.notes.length > 0 && <NoteList notes={data.notes} />}
-      {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} />}
+      {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
+      {isModalOpen && (
+        <Modal onClose={() => setIsModalOpen(false)}>
+          <NoteForm onClose={() => setIsModalOpen(false)} />
+        </Modal>
+      )}
     </div>
   );
 };
