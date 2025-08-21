@@ -6,9 +6,9 @@ const axiosInst = axios.create({
   headers: { Authorization: `Bearer ${import.meta.env.VITE_NOTEHUB_TOKEN}` },
 });
 
-//* === GET =========================================================
+//* === GET === *
 interface fetchNotesProps {
-  results: Note[];
+  notes: Note[];
   totalPages: number;
 }
 
@@ -29,10 +29,11 @@ export const fetchNotes = async (
     "/notes",
     params
   );
+
   return fetchNotesResponse.data;
 };
 
-//* === CREATE ======================================================
+//* === CREATE === *
 interface newTaskProp {
   title: string;
   content: string;
@@ -44,7 +45,7 @@ export const createNote = async (newTask: newTaskProp) => {
   return createNoteResponse.data;
 };
 
-//* === DELETE =======================================================
+//* === DELETE === *
 export const deleteNote = async (taskID: string): Promise<Note> => {
   const deleteNoteResponse = await axiosInst.delete(`notes/${taskID}`);
   return deleteNoteResponse.data;
