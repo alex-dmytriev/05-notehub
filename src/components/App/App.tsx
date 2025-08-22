@@ -40,7 +40,7 @@ const App = () => {
           <Pagination
             totalPages={data.totalPages}
             page={page}
-            currentPage={setPage}
+            onPageChange={setPage} //! Fix
           />
         )}
         <button onClick={handleCreateNote} className={css.button}>

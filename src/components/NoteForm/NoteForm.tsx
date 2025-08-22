@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as Yup from "yup";
 import { createNote } from "../../services/noteService";
 
-interface NoteFromProp {
+export interface NoteFormProps {
   onClose: () => void;
 }
 
@@ -28,7 +28,7 @@ const validationSchema = Yup.object({
     .oneOf(["Todo", "Personal", "Work", "Meeting", "Shopping"], "Invalid tag"),
 });
 
-const NoteForm = ({ onClose }: NoteFromProp) => {
+const NoteForm = ({ onClose }: NoteFormProps) => {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: createNote,

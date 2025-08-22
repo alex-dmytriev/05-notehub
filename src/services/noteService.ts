@@ -39,13 +39,14 @@ interface newTaskProp {
   tag: NoteTag;
 }
 
-export const createNote = async (newTask: newTaskProp) => {
-  const createNoteResponse = await axiosInst.post("/notes", newTask);
+export const createNote = async (newTask: newTaskProp): Promise<Note> => {
+  const createNoteResponse = await axiosInst.post<Note>("/notes", newTask);
+  console.log(createNoteResponse.data);
   return createNoteResponse.data;
 };
 
 //* === DELETE === *
 export const deleteNote = async (taskID: string): Promise<Note> => {
-  const deleteNoteResponse = await axiosInst.delete(`notes/${taskID}`);
+  const deleteNoteResponse = await axiosInst.delete<Note>(`notes/${taskID}`);
   return deleteNoteResponse.data;
 };
